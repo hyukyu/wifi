@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-
 public class WIFIScanner extends Activity implements OnClickListener{
 
     private static final String TAG = "WIFIScanner";
@@ -77,6 +76,7 @@ public class WIFIScanner extends Activity implements OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //  Setup UI
         textStatus = (TextView) findViewById(R.id.textStatus);
         btnScanStart = (Button) findViewById(R.id.btnScanStart);
@@ -87,7 +87,7 @@ public class WIFIScanner extends Activity implements OnClickListener{
         btnScanStop.setOnClickListener(this);
 
         // Setup WIFI
-        wifimanager = (WifiManager) getSystemService(WIFI_SERVICE);
+        wifimanager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         Log.d(TAG, "Setup WifiManager getSystemService");
 
         // turn-on wifi WIFIEnabled

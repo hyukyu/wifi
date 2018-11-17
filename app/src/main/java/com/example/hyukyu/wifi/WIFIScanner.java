@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import java.util.List;
 
@@ -37,6 +39,7 @@ public class WIFIScanner extends Activity implements OnClickListener{
         @Override
         public void onReceive(Context context, Intent intent){
             final String action = intent.getAction();
+            Log.d("check ME ", action);
             if(action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)){
                 getWIFIScanResult();
                 wifimanager.startScan();
@@ -51,11 +54,11 @@ public class WIFIScanner extends Activity implements OnClickListener{
         mScanResult = wifimanager.getScanResults();
 
         textStatus.setText("Scan count is \t" + ++scanCount + " times \n");
-        textStatus.append("Found: " + mScanResult.size());
+        textStatus.append("Found: " + mScanResult.size() + "\n");
         textStatus.append("============================================\n");
         for(int i=0;i<mScanResult.size();i++){
             ScanResult result = mScanResult.get(i);
-            textStatus.append((i+1) + ". SSID : " + result.SSID.toString() + "\t\t RSSI: " + result.level + " dBm\n");
+            textStatus.append((i+1) + ". SSID : " + result.SSID + "\t\t RSSI: " + result.level + " dBm\n");
         }
         textStatus.append("============================================\n");
     }
@@ -78,9 +81,9 @@ public class WIFIScanner extends Activity implements OnClickListener{
 
 
         //  Setup UI
-        textStatus = (TextView) findViewById(R.id.textStatus);
-        btnScanStart = (Button) findViewById(R.id.btnScanStart);
-        btnScanStop = (Button) findViewById(R.id.btnScanStop);
+        textStatus = findViewById(R.id.textStatus);
+        btnScanStart = findViewById(R.id.btnScanStart);
+        btnScanStop = findViewById(R.id.btnScanStop);
 
         // setup OnClickListener
         btnScanStart.setOnClickListener(this);
@@ -110,6 +113,20 @@ public class WIFIScanner extends Activity implements OnClickListener{
             Log.d(TAG, "OnClick() btnScanStop()");
             printToast("WIFI STOP!!");
             unregisterReceiver(mReceiver);
+        }
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            if(checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != getPackageManager().PERMISSION_GRANTED)
+            {
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
+            }
         }
     }
 }

@@ -121,11 +121,29 @@ public class WIFIScanner extends Activity implements OnClickListener{
     {
         super.onResume();
 
+        Log.d("bad", "0");
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
             if(checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != getPackageManager().PERMISSION_GRANTED)
             {
+                Log.d("bad", "1");
                 requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
+            }
+            if(checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != getPackageManager().PERMISSION_GRANTED)
+            {
+                Log.d("bad", "2");
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+            }
+            if(checkSelfPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) != getPackageManager().PERMISSION_GRANTED)
+            {
+                Log.d("bad", "3");
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_NETWORK_STATE}, 123);
+            }
+            if(checkSelfPermission(android.Manifest.permission.ACCESS_WIFI_STATE) != getPackageManager().PERMISSION_GRANTED)
+            {
+                Log.d("bad", "4");
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_WIFI_STATE}, 123);
             }
         }
     }

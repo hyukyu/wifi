@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,7 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class WIFIScanner extends Activity implements OnClickListener{
@@ -30,16 +31,20 @@ public class WIFIScanner extends Activity implements OnClickListener{
     Button btnScanStop;
 
     private int scanCount = 0;
+    private float timeCount = 0;
     String text = "";
     String result = "";
+    private int start = 1;
+    private int lowest = -100;
+    private String best;
 
     private List<ScanResult> mScanResult;
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context context, Intent intent){
             final String action = intent.getAction();
-            Log.d("check ME ", action);
             if(action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)){
                 getWIFIScanResult();
                 wifimanager.startScan();
@@ -53,13 +58,34 @@ public class WIFIScanner extends Activity implements OnClickListener{
     public void getWIFIScanResult(){
         mScanResult = wifimanager.getScanResults();
 
+        ArrayList<String> tmp = new ArrayList<String>();
+
+        int sum = 0;
+
+        // Edit text
         textStatus.setText("Scan count is \t" + ++scanCount + " times \n");
-        textStatus.append("Found: " + mScanResult.size() + "\n");
+        textStatus.append("Found: " + tmp.size() + "\n");
         textStatus.append("============================================\n");
+
+        // Read
         for(int i=0;i<mScanResult.size();i++){
             ScanResult result = mScanResult.get(i);
-            textStatus.append((i+1) + ". SSID : " + result.SSID + "\t\t RSSI: " + result.level + " dBm\n");
+
+            if(start==1 && result.level < 0 && result.level > lowest){
+                Log.d("Best", result.SSID + " or " + result.BSSID + " : " + result.level);
+                best = result.BSSID;
+                lowest = result.level;
+            }
+            else if(result.BSSID.equals(best)){
+                sum = result.level;
+            }
         }
+
+        start = 0;
+
+        Log.d("Best: ", best + " level: " + sum);
+        textStatus.append("Best: " + best + " level: " + sum + "\n");
+
         textStatus.append("============================================\n");
     }
 
@@ -79,7 +105,6 @@ public class WIFIScanner extends Activity implements OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //  Setup UI
         textStatus = findViewById(R.id.textStatus);
         btnScanStart = findViewById(R.id.btnScanStart);
@@ -96,6 +121,10 @@ public class WIFIScanner extends Activity implements OnClickListener{
         // turn-on wifi WIFIEnabled
         if(!wifimanager.isWifiEnabled())
             wifimanager.setWifiEnabled(true);
+
+        //use this?
+        WifiInfo wifiInfo = wifimanager.getConnectionInfo();
+        Log.d("level", "" + wifiInfo.getRssi());
     }
 
     public void printToast(String messageToast){
@@ -121,8 +150,6 @@ public class WIFIScanner extends Activity implements OnClickListener{
     {
         super.onResume();
 
-        Log.d("bad", "0");
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
             if(checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != getPackageManager().PERMISSION_GRANTED)
@@ -134,16 +161,6 @@ public class WIFIScanner extends Activity implements OnClickListener{
             {
                 Log.d("bad", "2");
                 requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 123);
-            }
-            if(checkSelfPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) != getPackageManager().PERMISSION_GRANTED)
-            {
-                Log.d("bad", "3");
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_NETWORK_STATE}, 123);
-            }
-            if(checkSelfPermission(android.Manifest.permission.ACCESS_WIFI_STATE) != getPackageManager().PERMISSION_GRANTED)
-            {
-                Log.d("bad", "4");
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_WIFI_STATE}, 123);
             }
         }
     }
